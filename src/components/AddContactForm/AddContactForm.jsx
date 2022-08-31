@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addContact, getContactsValue } from '../../redux/contacts/slice';
+import { useCreateContactMutation, useGetContactsQuery } from 'redux/contacts';
+import { Bars } from 'react-loader-spinner';
 import { nanoid } from 'nanoid';
 import { Input } from '../Input/Input';
 import { FormContainer } from './AddContactForm.styled';
@@ -8,9 +8,9 @@ import { Button } from 'utilities';
 
 export const AddContactForm = () => {
   const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-  const items = useSelector(getContactsValue);
-  const dispatch = useDispatch();
+  const [phone, setPhone] = useState('');
+  const [createContact, { isLoading: isAdding }] = useCreateContactMutation();
+  const { data } = useGetContactsQuery();
 
   const handleChange = event => {
     const { name, value } = event.target;
@@ -20,8 +20,8 @@ export const AddContactForm = () => {
         setName(value);
         break;
 
-      case 'number':
-        setNumber(value);
+      case 'phone':
+        setPhone(value);
         break;
 
       default:
@@ -31,19 +31,21 @@ export const AddContactForm = () => {
 
   const reset = () => {
     setName('');
-    setNumber('');
+    setPhone('');
   };
 
   const handleSubmit = event => {
     event.preventDefault();
     if (isContactExist(name)) {
-      dispatch(addContact({ id: nanoid(), name, number }));
+      createContact({ name, phone });
       reset();
     }
   };
 
   const isContactExist = name => {
-    if (items.find(item => item.name.toLowerCase() === name.toLowerCase())) {
+    if (
+      data.find(contact => contact.name.toLowerCase() === name.toLowerCase())
+    ) {
       alert(`${name} is already in contacts`);
       return false;
     }
@@ -64,15 +66,29 @@ export const AddContactForm = () => {
       />
       <Input
         type="tel"
-        name="number"
+        name="phone"
         id={nanoid()}
         pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
         title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-        value={number}
+        value={phone}
         required={true}
         onChange={handleChange}
       />
-      <Button type="submit">Add contact</Button>
+      <Button type="submit">
+        {isAdding ? (
+          <Bars
+            height="40"
+            width="40"
+            color="blue"
+            ariaLabel="bars-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
+        ) : (
+          'Add contact'
+        )}
+      </Button>
     </FormContainer>
   );
 };

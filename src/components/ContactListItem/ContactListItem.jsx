@@ -1,22 +1,39 @@
 import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
-import { removeContact, getContactsValue } from '../../redux/contacts/slice';
+import { Bars } from 'react-loader-spinner';
+import { useDeleteContactMutation, useGetContactsQuery } from 'redux/contacts';
 import { ListItem } from './ContactListItem.styled';
 import { Button } from 'utilities';
 
 export function ContactListItem({ id }) {
-  const items = useSelector(getContactsValue);
-  const dispatch = useDispatch();
-  const { name, number } = items.find(item => item.id === id);
+  const { data, isError } = useGetContactsQuery();
+  const [deleteContact, { isLoading: isDeleting }] = useDeleteContactMutation();
+  const { name, phone } = data.find(item => item.id === id);
   const handleClick = () => {
-    dispatch(removeContact(id));
+    deleteContact(id);
   };
   return (
     <ListItem>
-      {name}: {number}{' '}
-      <Button type="button" onClick={handleClick}>
-        Delete
-      </Button>
+      {data && !isError && (
+        <>
+          {name}: {phone}{' '}
+          <Button type="button" onClick={handleClick} disabled={isDeleting}>
+            {isDeleting ? (
+              <Bars
+                height="40"
+                width="40"
+                color="blue"
+                ariaLabel="bars-loading"
+                wrapperStyle={{}}
+                wrapperClass=""
+                visible={true}
+              />
+            ) : (
+              'Delete'
+            )}
+          </Button>
+        </>
+      )}
+      {isError && <p>Sorry, contact not found</p>}
     </ListItem>
   );
 }

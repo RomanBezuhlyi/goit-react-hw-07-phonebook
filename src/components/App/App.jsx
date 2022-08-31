@@ -5,6 +5,7 @@ import { Section } from 'components/Section';
 import { AddContactForm } from 'components/AddContactForm';
 import { ContactList } from 'components/ContactList';
 import { Filter } from 'components/Filter';
+
 export const App = () => {
   return (
     <Application>
@@ -18,7 +19,8 @@ export const App = () => {
         <Filter />
         <ContactList />
       </Section>
-      <Footer name="Roman Bezuhlyi" href="https://github.com/RomanBezuhlyi" />
+
+      <Footer name="Roman Bezuhlyi" href="https://github.com/RomanBezuhlyi/" />
     </Application>
   );
 };
